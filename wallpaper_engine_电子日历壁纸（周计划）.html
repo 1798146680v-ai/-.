@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>一周学习+锻炼电子日历壁纸</title>
+  <style>
+    :root{
+      --bg:#0f1115;--panel:#161a22;--soft:#1e2430;--text:#e7e9ee;--muted:#a7b0c0;--accent:#7ab7ff;--accent2:#8ef0c1;--warn:#ffd166;--danger:#ff6b6b;
+      --good:#8bc34a;--grid:#222733;--shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+    .wrap{width:100%;height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:14px;padding:18px}
+    header{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,var(--panel),var(--soft));border-radius:18px;padding:14px 18px;box-shadow:var(--shadow)}
+    .clock{display:flex;align-items:baseline;gap:14px}
+    .clock .time{font-size:46px;letter-spacing:1px}
+    .clock .date{font-size:16px;color:var(--muted)}
+    .today-badge{padding:6px 10px;border-radius:999px;background:var(--accent);color:#0a0f14;font-weight:700;box-shadow:0 6px 18px rgba(122,183,255,.35)}
+
+    main{display:grid;grid-template-columns: 260px 1fr;gap:14px;min-height:0}
+    .side{background:var(--panel);border-radius:18px;padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+    .view-toggle{display:flex;gap:8px}
+    .btn{border:none;background:var(--soft);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer}
+    .btn.active{outline:2px solid var(--accent)}
+
+    .week{display:grid;grid-template-columns:1fr;gap:8px}
+    .day{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:var(--soft);cursor:pointer}
+    .day.active{outline:2px solid var(--accent)}
+    .day small{color:var(--muted)}
+
+    .panel{background:var(--panel);border-radius:18px;padding:14px;box-shadow:var(--shadow);min-width:0;display:flex;flex-direction:column;gap:12px}
+
+    .now-row{display:flex;align-items:center;justify-content:space-between;background:var(--soft);border-radius:14px;padding:10px 12px}
+    .now-row .bar{--p:0;position:relative;height:8px;background:var(--grid);border-radius:999px;overflow:hidden;flex:1;margin:0 10px}
+    .now-row .bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:calc(var(--p) * 1%);background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+    .list{display:flex;flex-direction:column;gap:8px;min-height:0;overflow:auto}
+    .item{display:grid;grid-template-columns:96px 1fr auto;gap:12px;align-items:center;background:var(--soft);padding:10px 12px;border-radius:12px}
+    .item .time{font-variant-numeric:tabular-nums;color:var(--muted)}
+    .item .title{font-weight:600}
+    .item .tag{padding:4px 8px;border-radius:999px;font-size:12px;color:#0b1016}
+    .tag.cls{background:#ffd166}
+    .tag.study{background:#8ef0c1}
+    .tag.train{background:#7ab7ff}
+    .tag.relax{background:#b39ddb}
+    .tag.music{background:#ffb3c1}
+    .tag.sleep{background:#90caf9}
+
+    .grid{display:none;gap:8px}
+    .grid.active{display:grid}
+    .grid{grid-template-columns:repeat(7,1fr)}
+    .col{background:var(--panel);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px}
+    .col h3{margin:0 0 4px 0;font-size:14px;color:var(--muted)}
+
+    footer{display:flex;align-items:center;justify-content:space-between;color:var(--muted)}
+    .hint{opacity:.8}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="clock">
+        <div class="time" id="time">--:--</div>
+        <div class="date" id="date">加载中…</div>
+      </div>
+      <div class="today-badge" id="todayBadge">今天</div>
+    </header>
+
+    <main>
+      <aside class="side">
+        <div class="view-toggle">
+          <button class="btn active" id="btnToday">当天</button>
+          <button class="btn" id="btnWeek">整周</button>
+        </div>
+        <div class="week" id="weekList"></div>
+      </aside>
+
+        <section class="panel">
+          <div class="now-row">
+            <div id="nowLabel">当前：—</div>
+            <div class="bar" id="nowBar"></div>
+            <div id="nextLabel">下一项：—</div>
+          </div>
+          <div class="list" id="todayList"></div>
+
+          <div class="grid" id="weekGrid"></div>
+        </section>
+    </main>
+
+    <footer>
+      <div class="hint">Europe/Rome 时区 · 自动高亮今天 / 进度条显示当前时段</div>
+      <div>Nova × 无常 · Wallpaper Engine HTML 壁纸</div>
+    </footer>
+  </div>
+
+  <script>
+    // ====== 配置：一周固定日程 ======
+    // 工具函数：快速创建事件
+    const E=(t1,t2,title,tag)=>({t1,t2,title,tag}); // tag: cls/train/study/relax/music/sleep
+
+    // 每天的通用尾部（日更固定）
+    const dailyEvening=[
+      E("19:30","21:30","自习","study"),
+      E("21:30","22:30","贝斯练习","music"),
+      E("22:30","23:00","拉伸放松","relax"),
+      E("23:00","23:30","洗澡+睡前准备","relax"),
+      E("23:30","23:59","睡觉","sleep")
+    ];
+
+    const schedule={
+      1:[ // 周一（胸）
+        E("05:30","06:00","起床","relax"),
+        E("06:00","06:40","胸训练（哑铃推举×100）","train"),
+        E("06:40","07:10","洗澡+早餐","relax"),
+        E("07:15","10:15","自习①","study"),
+        E("10:30","12:30","自习②","study"),
+        E("12:30","13:30","午餐+休息","relax"),
+        E("13:30","16:00","自习③","study"),
+        E("16:15","18:00","自习④","study"),
+        E("18:00","18:30","轻活动","relax"),
+        E("18:30","19:30","晚餐","relax"),
+        ...dailyEvening,
+      ],
+      2:[ // 周二（四动作×50）
+        E("05:30","06:00","起床","relax"),
+        E("06:00","06:45","力量训练（4动作×50）","train"),
+        E("06:45","07:15","洗澡+早餐","relax"),
+        E("07:15","08:30","自习","study"),
+        // 09:00 课：准备与出门
+        E("08:30","08:45","准备出门","relax"),
+        E("08:45","09:00","出门（步行约12分钟）","relax"),
+        E("09:00","11:00","课：Crittografia","cls"),
+        E("11:00","11:12","回家（步行约12分钟）","relax"),
+        E("12:30","13:30","午餐+休息","relax"),
+        // 14:00 课：准备与出门
+        E("13:30","13:45","准备出门","relax"),
+        E("13:45","14:00","出门（步行约12分钟）","relax"),
+        E("14:00","16:00","课：Paradigmi di Programmazione A","cls"),
+        E("16:00","18:00","课：Laboratorio II A","cls"),
+        E("18:00","18:12","回家（步行约12分钟）","relax"),
+        E("18:30","19:30","晚餐","relax"),
+        ...dailyEvening,
+      ],
+      3:[ // 周三
+        E("05:30","06:00","起床","relax"),
+        E("06:00","06:30","轻度训练（拉伸+核心激活）","train"),
+        E("06:30","07:00","洗澡+早餐","relax"),
+        E("08:30","08:45","准备出门","relax"),
+        E("08:45","09:00","出门（步行约12分钟）","relax"),
+        E("09:00","11:00","课：Lab Programmazione Parallela","cls"),
+        E("11:00","13:00","课：Ricerca Operativa A","cls"),
+        E("13:00","13:12","回家（步行约12分钟）","relax"),
+        E("13:10","13:30","午餐","relax"),
+        E("13:30","13:45","准备出门","relax"),
+        E("13:45","14:00","出门（步行约12分钟）","relax"),
+        E("14:00","16:00","课：Architetture e Sistemi Operativi A","cls"),
+        E("16:00","18:00","课：Paradigmi di Programmazione A","cls"),
+        E("18:00","18:12","回家（步行约12分钟）","relax"),
+        E("18:30","19:30","晚餐","relax"),
+        ...dailyEvening,
+      ],
+      4:[ // 周四（腹）
+        E("05:30","06:00","起床","relax"),
+        E("06:00","06:30","腹部训练","train"),
+        E("06:30","07:00","洗澡+早餐","relax"),
+        E("08:30","08:45","准备出门","relax"),
+        E("08:45","09:00","出门（步行约12分钟）","relax"),
+        E("09:00","11:00","课：Lab Programmazione Parallela","cls"),
+        E("11:00","13:00","课：Interazione Uomo‑Macchina / Crittografia（合并）","cls"),
+        E("13:00","13:12","回家（步行约12分钟）","relax"),
+        E("13:12","13:30","午餐","relax"),
+        E("12:30","13:30","午餐","relax"),
+        E("13:30","13:45","准备出门","relax"),
+        E("13:45","14:00","出门（步行约12分钟）","relax"),
+        E("14:00","16:00","课：Paradigmi di Programmazione A","cls"),
+        E("16:00","18:00","课：Ricerca Operativa A","cls"),
+        E("18:00","18:12","回家（步行约12分钟）","relax"),
+        E("18:30","19:30","晚餐","relax"),
+        ...dailyEvening,
+      ],
+      5:[ // 周五（胸）
+        E("05:30","06:00","起床","relax"),
+        E("06:00","06:40","胸训练（哑铃推举×100）","train"),
+        E("06:40","07:10","洗澡+早餐","relax"),
+        E("08:30","08:45","准备出门","relax"),
+        E("08:45","09:00","出门（步行约12分钟）","relax"),
+        E("09:00","11:00","课：Laboratorio II A","cls"),
+        E("11:00","13:00","课：Architetture e Sistemi Operativi A","cls"),
+        E("13:00","13:12","回家（步行约12分钟）","relax"),
+        E("13:12","13:30","午餐","relax"),
+        E("12:30","13:30","午餐","relax"),
+        E("13:30","13:45","准备出门","relax"),
+        E("13:45","14:00","出门（步行约12分钟）","relax"),
+        E("14:00","16:00","课：Interazione Uomo‑Macchina","cls"),
+        E("16:00","16:12","回家（步行约12分钟）","relax"),
+        E("16:00","18:00","自习/复习","study"),
+        E("18:30","19:30","晚餐","relax"),
+        ...dailyEvening,
+      ],
+      6:[ // 周六
+        E("05:30","06:00","起床","relax"),
+        E("06:00","06:30","拉伸/轻有氧","train"),
+        E("06:30","07:00","洗澡+早餐","relax"),
+        E("07:30","18:00","自习/复习/作业（自由块）","study"),
+        E("18:30","19:30","晚餐","relax"),
+        ...dailyEvening,
+      ],
+      0:[ // 周日（腹） — 注意：Date.getDay() 周日=0
+        E("05:30","06:00","起床","relax"),
+        E("06:00","06:30","腹部训练","train"),
+        E("06:30","07:00","洗澡+早餐","relax"),
+        E("07:30","18:00","自习 + 复习总结（自由块）","study"),
+        E("18:30","19:30","晚餐","relax"),
+        ...dailyEvening,
+      ],
+    };
+
+    // ====== 工具：Rome 时区当前时间（高精度到秒） ======
+    function nowInTZ(tz){
+      const p=new Intl.DateTimeFormat('zh-CN',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date());
+      const g=k=>parseInt(p.find(x=>x.type===k).value,10);
+      return new Date(Date.UTC(g('year'),g('month')-1,g('day'),g('hour'),g('minute'),g('second')));
+    }
+
+    // 解析 HH:MM 为当天在 tz 的 Date（UTC 基准）
+    function parseHM(hm, base){
+      const [H,M]=hm.split(':').map(Number);
+      return new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate(), H, M, 0));
+    }
+
+    function fmtHM(d){
+      const h=String(d.getUTCHours()).padStart(2,'0');
+      const m=String(d.getUTCMinutes()).padStart(2,'0');
+      return `${h}:${m}`;
+    }
+
+    // 计算今天的事件清单 + 进度
+    function buildToday(){
+      const tz='Europe/Rome';
+      const now=nowInTZ(tz);
+      const dow=new Intl.DateTimeFormat('zh-CN',{weekday:'short',timeZone:tz}).format(now);
+      // JS 周日=0
+      const w= new Intl.DateTimeFormat('en-US',{weekday:'short',timeZone:tz}).format(now);
+      const map={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+      const wd=map[w];
+
+      const list = schedule[wd]||[];
+
+      // 顶部头部
+      document.getElementById('todayBadge').textContent = `今天 · ${dow}`;
+
+      // 列表渲染
+      const wrap=document.getElementById('todayList');
+      wrap.innerHTML='';
+
+      let currentIdx=-1, nextIdx=-1, progress=0;
+      const base=now; // 已是 UTC 对齐的 Rome 当天
+      list.forEach((e,i)=>{
+        const s=parseHM(e.t1,base), t=parseHM(e.t2,base);
+        const nowMs=now.getTime();
+        if(nowMs>=s && nowMs<t){ currentIdx=i; progress=((nowMs - s)/(t - s))*100 }
+        if(nowMs < s && nextIdx===-1) nextIdx=i;
+        const row=document.createElement('div');
+        row.className='item';
+        row.innerHTML=`<div class="time">${e.t1}–${e.t2}</div>
+          <div class="title">${e.title}</div>
+          <div class="tag ${e.tag}">${tagLabel(e.tag)}</div>`;
+        if(i===currentIdx) row.style.outline=`2px solid var(--accent)`;
+        wrap.appendChild(row);
+      });
+
+      // 顶部 now / next
+      const nowBar=document.getElementById('nowBar');
+      nowBar.style.setProperty('--p', progress.toFixed(2));
+      document.getElementById('nowLabel').textContent = currentIdx>-1 ? `当前：${list[currentIdx].title}` : '当前：空档';
+      document.getElementById('nextLabel').textContent = nextIdx>-1 ? `下一项：${list[nextIdx].t1} · ${list[nextIdx].title}` : '下一项：—';
+
+      // 左侧一周概览
+      const wl=document.getElementById('weekList');
+      wl.innerHTML='';
+      const cnDays=['周日','周一','周二','周三','周四','周五','周六'];
+      for(let d=1; d<=6; d++) addDay(d);
+      addDay(0); // 周日放最后一行
+      function addDay(d){
+        const first=(schedule[d]||[])[0];
+        const el=document.createElement('div');
+        el.className='day'+(d===wd?' active':'');
+        const label = d===0? cnDays[0] : cnDays[d];
+        el.innerHTML=`<div>${label}</div><small>${first? first.t1+" 开始":"休息"}</small>`;
+        el.onclick=()=>{ showDay(d); activateBtn('btnToday'); };
+        wl.appendChild(el);
+      }
+
+      // 周视图网格
+      const grid=document.getElementById('weekGrid');
+      grid.innerHTML='';
+      const order=[1,2,3,4,5,6,0];
+      order.forEach(d=>{
+        const col=document.createElement('div');
+        col.className='col';
+        const cn=['周日','周一','周二','周三','周四','周五','周六'][d];
+        col.innerHTML=`<h3>${cn}</h3>`;
+        (schedule[d]||[]).forEach(e=>{
+          const p=document.createElement('div');
+          p.className='item';
+          p.style.gridTemplateColumns='auto 1fr auto';
+          p.innerHTML=`<div class="time">${e.t1}</div>
+                       <div class="title">${e.title}</div>
+                       <div class="tag ${e.tag}">${tagLabel(e.tag)}</div>`;
+          col.appendChild(p);
+        });
+        grid.appendChild(col);
+      });
+
+      function showDay(d){
+        const list = schedule[d]||[];
+        wrap.innerHTML='';
+        list.forEach((e)=>{
+          const row=document.createElement('div');
+          row.className='item';
+          row.innerHTML=`<div class="time">${e.t1}–${e.t2}</div>
+            <div class="title">${e.title}</div>
+            <div class="tag ${e.tag}">${tagLabel(e.tag)}</div>`;
+          wrap.appendChild(row);
+        });
+        // 高亮侧边栏
+        document.querySelectorAll('.day').forEach((n)=>n.classList.remove('active'));
+        const idx = order.indexOf(d);
+        if(idx>-1) document.querySelectorAll('.day')[idx].classList.add('active');
+      }
+
+      // 初始视图：当天
+      showDay(wd);
+    }
+
+    function tagLabel(k){
+      return ({cls:'课程',train:'锻炼',study:'自习',relax:'生活',music:'贝斯',sleep:'睡眠'})[k]||k;
+    }
+
+    // 时钟 & 切换
+    function tick(){
+      const tz='Europe/Rome';
+      const now=nowInTZ(tz);
+      const timeStr=new Intl.DateTimeFormat('zh-CN',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(now);
+      const dateStr=new Intl.DateTimeFormat('zh-CN',{timeZone:tz,year:'numeric',month:'long',day:'2-digit',weekday:'long'}).format(now);
+      document.getElementById('time').textContent=timeStr;
+      document.getElementById('date').textContent=dateStr;
+    }
+
+    function activateBtn(id){
+      document.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      const grid=document.getElementById('weekGrid');
+      const todayList=document.getElementById('todayList');
+      if(id==='btnWeek'){ grid.classList.add('active'); todayList.style.display='none'; }
+      else { grid.classList.remove('active'); todayList.style.display='flex'; }
+    }
+
+    document.getElementById('btnToday').onclick=()=>activateBtn('btnToday');
+    document.getElementById('btnWeek').onclick=()=>activateBtn('btnWeek');
+
+    // 启动
+    tick();
+    buildToday();
+    setInterval(()=>{ tick(); buildToday(); }, 1000*30); // 每30秒刷新一次进度/当天列表
+  </script>
+</body>
+</html>
