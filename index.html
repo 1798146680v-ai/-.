@@ -112,9 +112,8 @@
       const tagLabel=(k)=>({cls:'课程',train:'锻炼',study:'自习',relax:'生活',music:'贝斯',sleep:'睡眠',go:'出门',back:'回家'})[k]||k;
 
       const eveningBlock=[
-        Range('19:30','20:30','自习','study'),
-        Range('20:30','21:00','贝斯练习（30分钟，注意音量）','music'),
-        Range('21:00','22:00','自习','study'),
+        Range('20:00','20:30','贝斯练习（30分钟，注意音量）','music'),
+        Range('20:30','22:00','自习','study'),
         Range('22:00','22:30','自由放松','relax'),
         Range('22:30','22:50','洗澡','relax'),
         Range('22:50','23:20','拉伸放松','relax'),
@@ -122,22 +121,63 @@
       ];
 
       const schedule={
-        1:[Point('06:30','起床','relax'),Range('07:00','07:40','胸训练（哑铃推举×100）','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:15','10:15','自习①','study'),Range('10:30','12:30','自习②','study'),Range('12:30','13:30','午餐+休息','relax'),Range('13:30','16:00','自习③','study'),Range('16:15','18:00','自习④','study'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
-        2:[Point('06:30','起床','relax'),Range('07:00','07:45','力量训练（4动作×50）','train'),Range('07:45','08:15','洗澡+早餐','relax'),Range('08:15','12:30','自习','study'),Range('12:30','13:30','午餐','relax'),Range('13:30','13:45','准备出门','go'),Range('13:45','14:00','出门（步行约12分钟）','go'),Range('14:00','16:00','课：Paradigmi di Programmazione A','cls'),Range('16:00','18:00','课：Laboratorio II A','cls'),Range('18:00','18:12','回家（步行约12分钟）','back'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
-        3:[Point('06:30','起床','relax'),Range('07:00','07:30','轻度激活（拉伸+核心）','train'),Range('07:30','08:00','洗澡+早餐','relax'),Range('08:30','08:45','准备出门','go'),Range('08:45','09:00','出门（步行约12分钟）','go'),Range('09:00','11:00','课：Laboratorio di Programmazione Parallela','cls'),Range('11:00','13:00','课：Ricerca Operativa A','cls'),Range('13:00','13:12','回家（步行约12分钟）','back'),Range('13:12','13:30','午餐','relax'),Range('13:30','13:45','准备出门','go'),Range('13:45','14:00','出门（步行约12分钟）','go'),Range('14:00','16:00','课：Architetture e Sistemi Operativi A','cls'),Range('16:00','18:00','课：Paradigmi di Programmazione A','cls'),Range('18:00','18:12','回家（步行约12分钟）','back'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
-        4:[Point('06:30','起床','relax'),Range('07:00','07:30','腹部训练','train'),Range('07:30','08:00','洗澡+早餐','relax'),Range('08:30','08:45','准备出门','go'),Range('08:45','09:00','出门（步行约12分钟）','go'),Range('09:00','11:00','课：Laboratorio di Programmazione Parallela','cls'),Range('11:00','12:30','自习/回家路上缓冲','study'),Range('12:30','13:30','午餐','relax'),Range('13:30','13:45','准备出门','go'),Range('13:45','14:00','出门（步行约12分钟）','go'),Range('14:00','16:00','课：Paradigmi di Programmazione A','cls'),Range('16:00','18:00','课：Ricerca Operativa A','cls'),Range('18:00','18:12','回家（步行约12分钟）','back'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
-        5:[Point('06:30','起床','relax'),Range('07:00','07:40','胸训练（哑铃推举×100）','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:30','08:45','准备出门','go'),Range('08:45','09:00','出门（步行约12分钟）','go'),Range('09:00','11:00','课：Laboratorio II A','cls'),Range('11:00','13:00','课：Architetture e Sistemi Operativi A','cls'),Range('13:00','13:12','回家（步行约12分钟）','back'),Range('13:12','13:30','午餐','relax'),Range('16:00','18:00','自习/复习','study'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
-        6:[Point('06:30','起床','relax'),Range('07:00','07:30','拉伸/轻有氧','train'),Range('07:30','08:00','洗澡+早餐','relax'),Range('08:00','18:00','自习/项目（自由块）','study'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
-        0:[Point('06:30','起床','relax'),Range('07:00','07:30','腹部训练','train'),Range('07:30','08:00','洗澡+早餐','relax'),Range('08:00','18:00','自习 + 复习总结（自由块）','study'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock)
+        1:[Point('07:30','起床','relax'),Range('17:30','18:30','胸训练（哑铃推举×100）','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:15','10:15','自习①','study'),Range('10:30','12:30','自习②','study'),Range('12:30','13:30','午餐+休息','relax'),Range('13:30','16:00','自习③','study'),Range('16:15','17:30','自习④','study'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
+        2:[Point('07:30','起床','relax'),Range('18:10','19:10','力量训练（4动作×50）','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:15','12:30','自习','study'),Range('12:30','13:30','午餐','relax'),Range('13:30','13:45','准备出门','go'),Range('13:45','14:00','出门（步行约12分钟）','go'),Range('14:00','16:00','课：Paradigmi di Programmazione A','cls'),Range('16:00','18:00','课：Laboratorio II A','cls'),Range('18:00','18:12','回家（步行约12分钟）','back'),Range('19:10','20:00','晚餐','relax')].concat(eveningBlock),
+        3:[Point('07:30','起床','relax'),Range('07:00','07:30','轻度激活（拉伸+核心）','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:30','08:45','准备出门','go'),Range('08:45','09:00','出门（步行约12分钟）','go'),Range('09:00','11:00','课：Laboratorio di Programmazione Parallela','cls'),Range('11:00','13:00','课：Ricerca Operativa A','cls'),Range('13:00','13:12','回家（步行约12分钟）','back'),Range('13:12','13:30','午餐','relax'),Range('13:30','13:45','准备出门','go'),Range('13:45','14:00','出门（步行约12分钟）','go'),Range('14:00','16:00','课：Architetture e Sistemi Operativi A','cls'),Range('16:00','18:00','课：Paradigmi di Programmazione A','cls'),Range('18:00','18:12','回家（步行约12分钟）','back'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
+        4:[Point('07:30','起床','relax'),Range('18:10','18:40','腹部训练','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:30','08:45','准备出门','go'),Range('08:45','09:00','出门（步行约12分钟）','go'),Range('09:00','11:00','课：Laboratorio di Programmazione Parallela','cls'),Range('11:00','12:30','自习/回家路上缓冲','study'),Range('12:30','13:30','午餐','relax'),Range('13:30','13:45','准备出门','go'),Range('13:45','14:00','出门（步行约12分钟）','go'),Range('14:00','16:00','课：Paradigmi di Programmazione A','cls'),Range('16:00','18:00','课：Ricerca Operativa A','cls'),Range('18:00','18:12','回家（步行约12分钟）','back'),Range('18:40','19:30','晚餐','relax')].concat(eveningBlock),
+        5:[Point('07:30','起床','relax'),Range('17:30','18:30','胸训练（哑铃推举×100）','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:30','08:45','准备出门','go'),Range('08:45','09:00','出门（步行约12分钟）','go'),Range('09:00','11:00','课：Laboratorio II A','cls'),Range('11:00','13:00','课：Architetture e Sistemi Operativi A','cls'),Range('13:00','13:12','回家（步行约12分钟）','back'),Range('13:12','13:30','午餐','relax'),Range('16:00','17:30','自习/复习','study'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
+        6:[Point('07:30','起床','relax'),Range('17:30','18:00','拉伸/轻有氧','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:00','18:00','自习/项目（自由块）','study'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock),
+        0:[Point('07:30','起床','relax'),Range('18:10','18:40','腹部训练','train'),Range('07:40','08:10','洗澡+早餐','relax'),Range('08:00','18:00','自习 + 复习总结（自由块）','study'),Range('18:30','19:30','晚餐','relax')].concat(eveningBlock)
       };
 
       function fmtHM(mins){ const h=(mins/60|0).toString().padStart(2,'0'); const m0=(mins%60).toString().padStart(2,'0'); return h+":"+m0; }
+
+      function selfTest(){
+        try{
+          const days=[0,1,2,3,4,5,6];
+          days.forEach(d=>{
+            const arr=(schedule[d]||[]);
+            arr.forEach((e,i)=>{
+              if(e.kind!=='range' && e.kind!=='point') throw new Error(`day ${d} idx ${i} invalid kind`);
+              if(typeof e.title!=='string' || typeof e.tag!=='string') throw new Error(`day ${d} idx ${i} bad title/tag`);
+              if(typeof e.s!=='number' || e.s<0 || e.s>=1440) throw new Error(`day ${d} idx ${i} bad start`);
+              if(e.kind==='range' && (typeof e.e!=='number' || e.e<=e.s || e.e>1440)) throw new Error(`day ${d} idx ${i} bad end`);
+            });
+          });
+          // ok
+        }catch(err){
+          const box=document.getElementById('err'); if(box){box.style.display='block'; box.textContent='数据校验失败：'+err.message;}
+          throw err;
+        }
+      }
+
+      function runTests(){
+        // 额外测试：排序单调性、贝斯时长、起床时间点
+        const days=[0,1,2,3,4,5,6];
+        days.forEach(d=>{
+          const arr=(schedule[d]||[]).slice().sort((a,b)=>a.s-b.s);
+          for(let i=1;i<arr.length;i++){
+            console.assert(arr[i].s>=arr[i-1].s, `排序错误: day ${d} idx ${i}`);
+          }
+        });
+        // 贝斯（music）应为30分钟
+        const all = days.flatMap(d=>schedule[d]||[]);
+        all.filter(e=>e.kind==='range' && e.tag==='music').forEach(e=>{
+          console.assert((e.e-e.s)===30, '贝斯时长应该是30分钟');
+        });
+        // 起床应为07:30（Point）
+        days.forEach(d=>{
+          const has = (schedule[d]||[]).some(e=>e.kind==='point' && e.title.includes('起床') && e.s===m('07:30'));
+          console.assert(has, `day ${d} 缺少 07:30 起床 点事件`);
+        });
+      }
 
       function build(){
         const wd = weekdayInTZ();
         if(selectedDay===null) selectedDay = wd; // 首次默认今天
         const nowM = nowMinutesInTZ();
         const list = schedule[selectedDay] || [];
+        const sorted = list.slice().sort((a,b)=>((a && typeof a.s==='number')?a.s:-1) - ((b && typeof b.s==='number')?b.s:-1)); // 🔧 统一按开始时间排序
 
         // 顶部时间
         const nowStr = new Intl.DateTimeFormat('zh-CN',{timeZone:TZ,year:'numeric',month:'long',day:'2-digit',weekday:'long',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
@@ -147,8 +187,8 @@
         const wrap = document.getElementById('todayList');
         wrap.innerHTML='';
         let currentIdx=-1, nextIdx=-1, progress=0;
-        for(let i=0;i<list.length;i++){
-          const e=list[i];
+        for(let i=0;i<sorted.length;i++){
+          const e=sorted[i];
           if(e.kind==='range'){
             if(nowM>=e.s && nowM<e.e){ currentIdx=i; progress=((nowM-e.s)/(e.e-e.s))*100; }
             if(nowM<e.s && nextIdx===-1) nextIdx=i;
@@ -165,15 +205,16 @@
           wrap.appendChild(row);
         }
         const nowBar=document.getElementById('nowBar'); nowBar.style.setProperty('--p', (progress||0).toFixed(2));
-        document.getElementById('nowLabel').textContent = currentIdx>-1 ? ('当前：'+list[currentIdx].title) : '当前：空档';
-        document.getElementById('nextLabel').textContent = nextIdx>-1 ? ('下一项：'+ (list[nextIdx].kind==='range'?fmtHM(list[nextIdx].s):fmtHM(list[nextIdx].s)) +' · '+list[nextIdx].title) : '下一项：—';
+        document.getElementById('nowLabel').textContent = currentIdx>-1 ? ('当前：'+sorted[currentIdx].title) : '当前：空档';
+        document.getElementById('nextLabel').textContent = nextIdx>-1 ? ('下一项：'+ (sorted[nextIdx].kind==='range'?fmtHM(sorted[nextIdx].s):fmtHM(sorted[nextIdx].s)) +' · '+sorted[nextIdx].title) : '下一项：—';
 
-        // 侧栏周列表
+        // 侧栏周列表（首项时间取排序后第一项）
         const order=[1,2,3,4,5,6,0];
         const cn=['周日','周一','周二','周三','周四','周五','周六'];
         const wl=document.getElementById('weekList'); wl.innerHTML='';
         order.forEach(function(d){
-          const first=(schedule[d]||[])[0];
+          const daySorted = (schedule[d]||[]).slice().sort((a,b)=>a.s-b.s);
+          const first=daySorted[0];
           const el=document.createElement('div');
           el.className='day'+(d===selectedDay?' active':'');
           el.innerHTML='<div>'+cn[d]+'</div><small>'+(first?(first.kind==='range'?fmtHM(first.s):fmtHM(first.s))+' 开始':'休息')+'</small>';
@@ -188,12 +229,13 @@
           wl.appendChild(el);
         });
 
-        // 整周网格
+        // 整周网格（每列排序）
         const grid=document.getElementById('weekGrid'); grid.innerHTML='';
         order.forEach(function(d){
           const col=document.createElement('div'); col.className='col';
           col.innerHTML='<h3>'+cn[d]+'</h3>';
-          (schedule[d]||[]).forEach(function(e){
+          const daySorted=(schedule[d]||[]).slice().sort((a,b)=>a.s-b.s);
+          daySorted.forEach(function(e){
             const p=document.createElement('div'); p.className='item'; p.style.gridTemplateColumns='auto 1fr auto';
             const timeTxt = e.kind==='range' ? (fmtHM(e.s)+'–'+fmtHM(e.e)) : ('● '+fmtHM(e.s));
             p.innerHTML='<div class="time">'+timeTxt+'</div><div class="title">'+e.title+'</div><div class="tag '+e.tag+'">'+tagLabel(e.tag)+'</div>';
@@ -224,7 +266,7 @@
       };
 
       // 安全初始化
-      tick(); build();
+      tick(); selfTest(); runTests(); build();
       setInterval(function(){ tick(); build(); }, 30000);
 
     }catch(e){
